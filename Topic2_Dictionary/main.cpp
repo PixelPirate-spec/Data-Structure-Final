@@ -24,6 +24,7 @@ int main() {
     dictionary.insert("Application", "A formal request to be considered for a position");
     dictionary.insert("Appetite", "A natural desire to satisfy a bodily need, especially for food");
 
+
     do {
         cout << "\n========================================" << endl;
         cout << "Topic 2: Dictionary System (BST)" << endl;
