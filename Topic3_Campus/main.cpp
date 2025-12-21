@@ -13,27 +13,16 @@ void pause() {
 int main() {
     CampusGraph campus;
     int choice;
+    vector<int> lastPath; // Store the last calculated path for export
 
-    // Pre-populate campus data
-    // IDs: 1:Gate, 2:Library, 3:Canteen, 4:Dorm, 5:Classroom, 6:Gym, 7:Admin
-    campus.addLocation(1, "Main Gate", "The main entrance.", 80);
+    // Pre-populate campus data (Default)
+    campus.addLocation(1, "Main_Gate", "The main entrance.", 80);
     campus.addLocation(2, "Library", "A quiet place to study.", 95);
     campus.addLocation(3, "Canteen", "Tasty and cheap food.", 90);
     campus.addLocation(4, "Dormitory", "Where students live.", 85);
-    campus.addLocation(5, "Teaching Bldg", "Classes are held here.", 88);
+    campus.addLocation(5, "Teaching_Bldg", "Classes are held here.", 88);
     campus.addLocation(6, "Gymnasium", "Sports and events.", 75);
-    campus.addLocation(7, "Admin Bldg", "Administrative offices.", 50);
-
-    // Add paths (Undirected)
-    // Gate(1) - [200] -> Teaching(5)
-    // Gate(1) - [500] -> Gym(6)
-    // Teaching(5) - [100] -> Library(2)
-    // Teaching(5) - [150] -> Canteen(3)
-    // Library(2) - [300] -> Dorm(4)
-    // Canteen(3) - [50] -> Dorm(4)
-    // Gym(6) - [250] -> Canteen(3)
-    // Gym(6) - [400] -> Admin(7)
-    // Admin(7) - [100] -> Library(2) -- Making a loop
+    campus.addLocation(7, "Admin_Bldg", "Administrative offices.", 50);
 
     campus.addPath(1, 5, 200);
     campus.addPath(1, 6, 500);
@@ -49,9 +38,13 @@ int main() {
         cout << "\n========================================" << endl;
         cout << "Topic 3: Campus Navigation System" << endl;
         cout << "========================================" << endl;
-        cout << "1. Find Shortest Path" << endl;
-        cout << "2. View All Locations (By Popularity)" << endl;
-        cout << "3. Find Location Info" << endl;
+        cout << "1. Add Location" << endl;
+        cout << "2. Add Path" << endl;
+        cout << "3. Query Shortest Path" << endl;
+        cout << "4. Browse Locations (Sort by Popularity/ID)" << endl;
+        cout << "5. Keyword Search (Prefix)" << endl;
+        cout << "6. Load Map from File" << endl;
+        cout << "7. Export Last Path to File" << endl;
         cout << "0. Exit" << endl;
         cout << "Enter choice: ";
 
@@ -64,28 +57,71 @@ int main() {
 
         switch (choice) {
             case 1: {
+                int id, pop;
+                string name, info;
+                cout << "Enter ID: "; cin >> id;
+                cout << "Enter Name (No spaces, use _): "; cin >> name;
+                cout << "Enter Popularity (0-100): "; cin >> pop;
+                cin.ignore(); // consume newline
+                cout << "Enter Info: "; getline(cin, info);
+                campus.addLocation(id, name, info, pop);
+                cout << "Location added." << endl;
+                break;
+            }
+            case 2: {
+                int u, v, w;
+                cout << "Enter Start ID: "; cin >> u;
+                cout << "Enter End ID: "; cin >> v;
+                cout << "Enter Weight: "; cin >> w;
+                campus.addPath(u, v, w);
+                cout << "Path added." << endl;
+                break;
+            }
+            case 3: {
                 int startId, endId;
                 cout << "Enter Start Location ID: ";
                 cin >> startId;
                 cout << "Enter End Location ID: ";
                 cin >> endId;
                 campus.printShortestPath(startId, endId);
+                // Update lastPath
+                lastPath = campus.getShortestPath(startId, endId);
                 break;
             }
-            case 2:
-                campus.printSortedByPopularity();
+            case 4: {
+                int sortChoice;
+                cout << "1. Sort by Popularity (Descending)" << endl;
+                cout << "2. Sort by ID (Ascending)" << endl;
+                cout << "Choice: ";
+                cin >> sortChoice;
+                if (sortChoice == 1) campus.printSortedByPopularity();
+                else if (sortChoice == 2) campus.printSortedById();
+                else cout << "Invalid choice." << endl;
                 break;
-            case 3: {
-                int id;
-                cout << "Enter Location ID: ";
-                cin >> id;
-                Vertex* v = campus.getLocation(id);
-                if (v) {
-                    cout << "Name: " << v->name << endl;
-                    cout << "Info: " << v->info << endl;
-                    cout << "Popularity: " << v->popularity << endl;
+            }
+            case 5: {
+                string keyword;
+                cout << "Enter keyword (prefix): ";
+                cin >> keyword;
+                campus.searchSpot(keyword);
+                break;
+            }
+            case 6: {
+                string filename;
+                cout << "Enter filename: ";
+                cin >> filename;
+                campus.loadMapFromFile(filename);
+                lastPath.clear();
+                break;
+            }
+            case 7: {
+                if (lastPath.empty()) {
+                    cout << "No path available to export. Please run query (Option 3) first." << endl;
                 } else {
-                    cout << "Location not found." << endl;
+                    string filename;
+                    cout << "Enter filename to save path: ";
+                    cin >> filename;
+                    campus.exportPathToFile(filename, lastPath);
                 }
                 break;
             }
