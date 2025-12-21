@@ -85,11 +85,12 @@ void heapSort(vector<Student>& students) {
 
 // --- Main Function ---
 
+// Custom function to check if the student list is empty, as requested.
+bool isStudentListEmpty(const vector<Student>& students) {
+    return students.empty();
+}
+
 void printStudents(const vector<Student>& students) {
-    if (students.empty()) {
-        cout << "No students to display." << endl;
-        return;
-    }
     printStudentHeader();
     for (const auto& s : students) {
         printStudent(s);
@@ -123,12 +124,12 @@ void inputStudents(vector<Student>& students) {
 int main() {
     vector<Student> students;
 
-    // Pre-populate with some data for testing if empty
-    students.push_back({"1003", "Alice", 85.5});
-    students.push_back({"1001", "Bob", 92.0});
-    students.push_back({"1005", "Charlie", 78.5});
-    students.push_back({"1002", "David", 88.0});
-    students.push_back({"1004", "Eve", 95.5});
+    // // Pre-populate with some data for testing if empty
+    // students.push_back({"1003", "Alice", 85.5});
+    // students.push_back({"1001", "Bob", 92.0});
+    // students.push_back({"1005", "Charlie", 78.5});
+    // students.push_back({"1002", "David", 88.0});
+    // students.push_back({"1004", "Eve", 95.5});
 
     int choice;
     do {
@@ -153,24 +154,28 @@ int main() {
                 inputStudents(students);
                 break;
             case 2:
-                printStudents(students);
+                if (isStudentListEmpty(students)) {
+                    cout << "No students to display." << endl;
+                } else {
+                    printStudents(students);
+                }
                 break;
             case 3:
-                if (!students.empty()) {
+                if (!isStudentListEmpty(students)) {
                     quickSort(students, 0, students.size() - 1);
                     cout << "Sorted by ID (Ascending):" << endl;
                     printStudents(students);
                 } else {
-                    cout << "List is empty." << endl;
+                    cout << "No students to display." << endl;
                 }
                 break;
             case 4:
-                if (!students.empty()) {
+                if (!isStudentListEmpty(students)) {
                     heapSort(students);
                     cout << "Sorted by Score (Descending):" << endl;
                     printStudents(students);
                 } else {
-                    cout << "List is empty." << endl;
+                    cout << "No students to display." << endl;
                 }
                 break;
             case 0:
