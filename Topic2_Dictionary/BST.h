@@ -6,35 +6,46 @@
 #include <iomanip>
 #include <fstream>
 #include <algorithm>
+#include <vector>
+#include <map>
 
 using namespace std;
 
 // BST Node Structure
-struct BSTNode {
+struct BSTNode
+{
     string word;
     string meaning;
-    BSTNode* left;
-    BSTNode* right;
+    BSTNode *left;
+    BSTNode *right;
 
     BSTNode(string w, string m) : word(w), meaning(m), left(nullptr), right(nullptr) {}
 };
 
 // Binary Search Tree Class
-class BST {
+class BST
+{
 private:
-    BSTNode* root;
+    BSTNode *root;
 
     // Helper: Insert recursively
-    BSTNode* insert(BSTNode* node, string word, string meaning) {
-        if (node == nullptr) {
+    BSTNode *insert(BSTNode *node, string word, string meaning)
+    {
+        if (node == nullptr)
+        {
             return new BSTNode(word, meaning);
         }
 
-        if (word < node->word) {
+        if (word < node->word)
+        {
             node->left = insert(node->left, word, meaning);
-        } else if (word > node->word) {
+        }
+        else if (word > node->word)
+        {
             node->right = insert(node->right, word, meaning);
-        } else {
+        }
+        else
+        {
             // Word already exists, update meaning
             node->meaning = meaning;
             // Removed verbose output for bulk operations
@@ -43,62 +54,83 @@ private:
     }
 
     // Helper: Search recursively
-    string search(BSTNode* node, string word) {
-        if (node == nullptr) {
+    string search(BSTNode *node, string word)
+    {
+        if (node == nullptr)
+        {
             return "Word not found in the dictionary.";
         }
 
-        if (word == node->word) {
+        if (word == node->word)
+        {
             return node->meaning;
-        } else if (word < node->word) {
+        }
+        else if (word < node->word)
+        {
             return search(node->left, word);
-        } else {
+        }
+        else
+        {
             return search(node->right, word);
         }
     }
 
     // Helper: Find minimum value node in a subtree (used for deletion)
-    BSTNode* findMin(BSTNode* node) {
-        while (node && node->left != nullptr) {
+    BSTNode *findMin(BSTNode *node)
+    {
+        while (node && node->left != nullptr)
+        {
             node = node->left;
         }
         return node;
     }
 
     // Helper: Delete recursively
-    BSTNode* remove(BSTNode* node, string word) {
-        if (node == nullptr) {
+    BSTNode *remove(BSTNode *node, string word)
+    {
+        if (node == nullptr)
+        {
             cout << "Word '" << word << "' not found." << endl;
             return nullptr;
         }
 
         // 1. Locate the node to be deleted
-        if (word < node->word) {
+        if (word < node->word)
+        {
             node->left = remove(node->left, word);
-        } else if (word > node->word) {
+        }
+        else if (word > node->word)
+        {
             node->right = remove(node->right, word);
-        } else {
+        }
+        else
+        {
             // Found the node to delete
 
             // Case 1: Node has no children (Leaf node)
-            if (node->left == nullptr && node->right == nullptr) {
+            if (node->left == nullptr && node->right == nullptr)
+            {
                 delete node;
                 node = nullptr;
             }
             // Case 2: Node has only one child
-            else if (node->left == nullptr) {
-                BSTNode* temp = node;
+            else if (node->left == nullptr)
+            {
+                BSTNode *temp = node;
                 node = node->right; // Replace with right child
                 delete temp;
-            } else if (node->right == nullptr) {
-                BSTNode* temp = node;
+            }
+            else if (node->right == nullptr)
+            {
+                BSTNode *temp = node;
                 node = node->left; // Replace with left child
                 delete temp;
             }
             // Case 3: Node has two children
-            else {
+            else
+            {
                 // Strategy: Find the Inorder Successor (smallest node in the right subtree)
-                BSTNode* temp = findMin(node->right);
+                BSTNode *temp = findMin(node->right);
 
                 // Copy the successor's content to this node
                 node->word = temp->word;
@@ -112,8 +144,10 @@ private:
     }
 
     // Helper: In-order traversal
-    void inOrder(BSTNode* node) {
-        if (node == nullptr) return;
+    void inOrder(BSTNode *node)
+    {
+        if (node == nullptr)
+            return;
 
         inOrder(node->left);
         cout << left << setw(20) << node->word << ": " << node->meaning << endl;
@@ -121,35 +155,31 @@ private:
     }
 
     // Helper: Clear tree (destructor)
-    void clear(BSTNode* node) {
-        if (node == nullptr) return;
+    void clear(BSTNode *node)
+    {
+        if (node == nullptr)
+            return;
         clear(node->left);
         clear(node->right);
         delete node;
     }
 
-    // Helper: Print tree structure with indentation
-    // indent: Current indentation string
-    // last: Is this node the last child of its parent?
-    void printTree(BSTNode* node, string indent, bool last) {
-        if (node != nullptr) {
-            cout << indent;
-            if (last) {
-                cout << "R----";
-                indent += "   ";
-            } else {
-                cout << "L----";
-                indent += "|  ";
-            }
-            cout << node->word << endl;
-            printTree(node->left, indent, false);
-            printTree(node->right, indent, true);
-        }
+    // Helper: Calculate positions for tree visualization
+    void calcPos(BSTNode *node, int &x, int y, map<BSTNode *, pair<int, int>> &pos)
+    {
+        if (!node)
+            return;
+        calcPos(node->left, x, y + 2, pos);
+        pos[node] = {x, y};
+        x += node->word.length() + 2; // Spacing
+        calcPos(node->right, x, y + 2, pos);
     }
 
     // Helper: Recursive fuzzy search
-    void searchByPrefix(BSTNode* node, string prefix) {
-        if (node == nullptr) return;
+    void searchByPrefix(BSTNode *node, string prefix)
+    {
+        if (node == nullptr)
+            return;
 
         // Optimized traversal:
         // If node's word is smaller than prefix, we only need to look at right subtree
@@ -159,7 +189,8 @@ private:
         searchByPrefix(node->left, prefix);
 
         // Check if node->word starts with prefix
-        if (node->word.find(prefix) == 0) {
+        if (node->word.find(prefix) == 0)
+        {
             cout << left << setw(20) << node->word << ": " << node->meaning << endl;
         }
 
@@ -167,8 +198,10 @@ private:
     }
 
     // Helper: Save to file (In-order traversal)
-    void saveToFile(BSTNode* node, ofstream& outFile) {
-        if (node == nullptr) return;
+    void saveToFile(BSTNode *node, ofstream &outFile)
+    {
+        if (node == nullptr)
+            return;
         saveToFile(node->left, outFile);
         outFile << node->word << ":" << node->meaning << endl;
         saveToFile(node->right, outFile);
@@ -177,26 +210,34 @@ private:
 public:
     BST() : root(nullptr) {}
 
-    ~BST() {
+    ~BST()
+    {
         clear(root);
     }
 
-    void insert(string word, string meaning) {
+    void insert(string word, string meaning)
+    {
         root = insert(root, word, meaning);
     }
 
-    string search(string word) {
+    string search(string word)
+    {
         return search(root, word);
     }
 
-    void remove(string word) {
+    void remove(string word)
+    {
         root = remove(root, word);
     }
 
-    void inOrder() {
-        if (root == nullptr) {
+    void inOrder()
+    {
+        if (root == nullptr)
+        {
             cout << "Dictionary is empty." << endl;
-        } else {
+        }
+        else
+        {
             cout << "----------------------------------------" << endl;
             cout << left << setw(20) << "Word" << "Meaning" << endl;
             cout << "----------------------------------------" << endl;
@@ -206,16 +247,81 @@ public:
     }
 
     // Extension: Visualization
-    void printTree() {
-        if (root == nullptr) {
+    void printTree()
+    {
+        if (root == nullptr)
+        {
             cout << "Tree is empty." << endl;
             return;
         }
-        printTree(root, "", true);
+
+        map<BSTNode *, pair<int, int>> pos;
+        int x = 0;
+        calcPos(root, x, 0, pos);
+
+        int height = 0;
+        for (auto const &entry : pos)
+        {
+            if (entry.second.second > height)
+                height = entry.second.second;
+        }
+
+        // Create canvas
+        vector<string> canvas(height + 1, string(x, ' '));
+
+        for (auto const &entry : pos)
+        {
+            BSTNode *node = entry.first;
+            int px = entry.second.first;
+            int py = entry.second.second;
+            string w = node->word;
+
+            // Print word
+            for (int i = 0; i < w.length(); ++i)
+            {
+                if (px + i < x)
+                    canvas[py][px + i] = w[i];
+            }
+
+            // Draw branches
+            if (node->left)
+            {
+                pair<int, int> lp = pos[node->left];
+                int lx_center = lp.first + node->left->word.length() / 2;
+
+                if (py + 1 < canvas.size())
+                {
+                    if (px - 1 >= 0)
+                        canvas[py + 1][px - 1] = '/';
+                    for (int k = lx_center + 1; k < px - 1; k++)
+                        canvas[py + 1][k] = '_';
+                }
+            }
+            if (node->right)
+            {
+                pair<int, int> rp = pos[node->right];
+                int rx_center = rp.first + node->right->word.length() / 2;
+                int px_end = px + w.length();
+
+                if (py + 1 < canvas.size())
+                {
+                    if (px_end < x)
+                        canvas[py + 1][px_end] = '\\';
+                    for (int k = px_end + 1; k < rx_center; k++)
+                        canvas[py + 1][k] = '_';
+                }
+            }
+        }
+
+        for (const string &line : canvas)
+        {
+            cout << line << endl;
+        }
     }
 
     // Extension: Fuzzy Search
-    void searchByPrefix(string prefix) {
+    void searchByPrefix(string prefix)
+    {
         cout << "Words starting with '" << prefix << "':" << endl;
         cout << "----------------------------------------" << endl;
         searchByPrefix(root, prefix);
@@ -223,9 +329,11 @@ public:
     }
 
     // Extension: File I/O
-    void saveToFile(string filename) {
+    void saveToFile(string filename)
+    {
         ofstream outFile(filename);
-        if (!outFile) {
+        if (!outFile)
+        {
             cout << "Error opening file for writing: " << filename << endl;
             return;
         }
@@ -234,18 +342,22 @@ public:
         cout << "Dictionary saved to " << filename << endl;
     }
 
-    void loadFromFile(string filename) {
+    void loadFromFile(string filename)
+    {
         ifstream inFile(filename);
-        if (!inFile) {
+        if (!inFile)
+        {
             cout << "Error opening file for reading: " << filename << endl;
             return;
         }
 
         string line;
         int count = 0;
-        while (getline(inFile, line)) {
+        while (getline(inFile, line))
+        {
             size_t delimiterPos = line.find(':');
-            if (delimiterPos != string::npos) {
+            if (delimiterPos != string::npos)
+            {
                 string word = line.substr(0, delimiterPos);
                 string meaning = line.substr(delimiterPos + 1);
                 insert(word, meaning);
