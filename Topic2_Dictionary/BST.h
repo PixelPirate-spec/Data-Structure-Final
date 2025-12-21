@@ -207,6 +207,54 @@ private:
         saveToFile(node->right, outFile);
     }
 
+    // Helper: Serialize to JSON
+    // Format: { "name": "word", "children": [ ... ] }
+    void serializeJSON(BSTNode* node, bool isLast) {
+        if (node == nullptr) return;
+
+        cout << "{";
+        cout << "\"name\": \"" << node->word << "\"";
+
+        if (node->left != nullptr || node->right != nullptr) {
+            cout << ", \"children\": [";
+            if (node->left) {
+                serializeJSON(node->left, node->right == nullptr);
+            }
+            if (node->right) {
+                if (node->left) cout << ", ";
+                serializeJSON(node->right, true);
+            }
+            cout << "]";
+        }
+
+        cout << "}";
+        if (!isLast) cout << ", "; // This logic is tricky in recursion without knowing parent context perfectly or passing stream.
+        // Actually, cleaner way for simple tree is simpler recursion or printing structure as is.
+        // But let's try to be valid JSON.
+        // A better approach for the list of children is to handle commas between children.
+    }
+
+    // Helper 2: Serialize to JSON with proper stream handling
+    void printJSON(BSTNode* node) {
+         if (node == nullptr) return;
+
+         cout << "{\"name\": \"" << node->word << "\"";
+         if (node->left || node->right) {
+             cout << ", \"children\": [";
+             if (node->left) {
+                 printJSON(node->left);
+             }
+             if (node->left && node->right) {
+                 cout << ", ";
+             }
+             if (node->right) {
+                 printJSON(node->right);
+             }
+             cout << "]";
+         }
+         cout << "}";
+    }
+
 public:
     BST() : root(nullptr) {}
 
@@ -317,6 +365,16 @@ public:
         {
             cout << line << endl;
         }
+    }
+
+    // Extension: JSON Visualization for CLI
+    void printTreeJSON() {
+        if (root == nullptr) {
+            cout << "{}" << endl;
+            return;
+        }
+        printJSON(root);
+        cout << endl;
     }
 
     // Extension: Fuzzy Search

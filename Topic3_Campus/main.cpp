@@ -10,11 +10,7 @@ void pause() {
     cin.get();
 }
 
-int main() {
-    CampusGraph campus;
-    int choice;
-    vector<int> lastPath; // Store the last calculated path for export
-
+void initCampus(CampusGraph& campus) {
     // Pre-populate campus data (Default)
     campus.addLocation(1, "Main_Gate", "The main entrance.", 80);
     campus.addLocation(2, "Library", "A quiet place to study.", 95);
@@ -33,6 +29,34 @@ int main() {
     campus.addPath(6, 3, 250);
     campus.addPath(6, 7, 400);
     campus.addPath(7, 2, 100);
+}
+
+int main(int argc, char* argv[]) {
+    CampusGraph campus;
+    initCampus(campus);
+
+    // CLI Mode
+    if (argc > 1) {
+        string command = argv[1];
+        if (command == "path") {
+            if (argc < 4) {
+                cerr << "Usage: ./app path <startId> <endId>" << endl;
+                return 1;
+            }
+            int startId = stoi(argv[2]);
+            int endId = stoi(argv[3]);
+            campus.printPathNamesCSV(startId, endId);
+        } else if (command == "locations") {
+            campus.printLocationsCSV();
+        } else {
+            cerr << "Unknown command: " << command << endl;
+            return 1;
+        }
+        return 0; // Exit after CLI command
+    }
+
+    int choice;
+    vector<int> lastPath; // Store the last calculated path for export
 
     do {
         cout << "\n========================================" << endl;

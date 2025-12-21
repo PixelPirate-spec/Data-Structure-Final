@@ -154,6 +154,14 @@ public:
         }
     }
 
+    // Extension: Print Locations CSV
+    void printLocationsCSV() {
+        cout << "id,name,popularity,info" << endl;
+        for (const auto& v : vertices) {
+            cout << v.id << "," << v.name << "," << v.popularity << "," << v.info << endl;
+        }
+    }
+
     // Dijkstra's Algorithm
     pair<map<int, int>, map<int, int>> dijkstra(int startId) {
         map<int, int> dist;
@@ -215,14 +223,26 @@ public:
             curr = parent[curr];
         }
 
-        // If s only contains endId and start!=end, path broken?
-        // Dijkstra guarantees parent trace back to start if connected.
-
         while (!s.empty()) {
             path.push_back(s.top());
             s.pop();
         }
         return path;
+    }
+
+    // Extension: Print Path Names CSV (Single line or List)
+    // Format: Name1,Name2,Name3...
+    void printPathNamesCSV(int startId, int endId) {
+         vector<int> path = getShortestPath(startId, endId);
+         if (path.empty()) {
+             // Print nothing or error? "pure results" usually implies empty if nothing.
+             return;
+         }
+         for (size_t i = 0; i < path.size(); ++i) {
+             cout << vertices[idToIndex[path[i]]].name;
+             if (i < path.size() - 1) cout << ",";
+         }
+         cout << endl;
     }
 
     void printShortestPath(int startId, int endId) {
@@ -235,14 +255,6 @@ public:
                  cout << "No path found." << endl;
             return;
         }
-
-        // Calculate total distance again or modify helper?
-        // Let's just run Dijkstra again inside or trust logic.
-        // For simplicity, let's just assume we want to print path.
-        // To get distance, we can sum weights or run Dijkstra.
-        // Actually, let's just use dijkstra result inside here like before for O(1) distance if we wanted optimization,
-        // but re-running dijkstra is O(E log V), acceptable for user interaction.
-        // Let's stick to the previous implementation which printed distance too.
 
         auto result = dijkstra(startId);
         int distance = result.first[endId];
@@ -283,9 +295,6 @@ public:
                 int id, popularity;
                 string name, info;
                 // Assuming format: id popularity name info(rest of line)
-                // Note: handling spaces in name/info is tricky with >>.
-                // Let's use a simpler format or assume name is single word or use delimiter.
-                // Task doesn't specify. Let's assume standard format: id popularity name info...
 
                 ss >> id >> popularity >> name;
                 string tempInfo;
@@ -315,12 +324,6 @@ public:
             cout << "Error opening file for writing: " << filename << endl;
             return;
         }
-
-        // Calculate total distance
-        int totalDist = 0;
-        // This is inefficient without the graph weights easily accessible,
-        // but we can look up edges.
-        // Let's just save the names.
 
         outFile << "Path Export:" << endl;
         for (size_t i = 0; i < path.size(); ++i) {
