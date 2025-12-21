@@ -10,11 +10,7 @@ void pause() {
     cin.get();
 }
 
-int main() {
-    BST dictionary;
-    int choice;
-    string word, meaning, filename;
-
+void initDictionary(BST& dictionary) {
     // Pre-populate dictionary
     dictionary.insert("Apple", "A fruit");
     dictionary.insert("Banana", "A long yellow fruit");
@@ -23,7 +19,33 @@ int main() {
     dictionary.insert("Elephant", "A very large plant-eating mammal");
     dictionary.insert("Application", "A formal request to be considered for a position");
     dictionary.insert("Appetite", "A natural desire to satisfy a bodily need, especially for food");
+}
 
+int main(int argc, char* argv[]) {
+    BST dictionary;
+    initDictionary(dictionary);
+
+    // CLI Mode
+    if (argc > 1) {
+        string command = argv[1];
+        if (command == "search") {
+            if (argc < 3) {
+                cerr << "Usage: ./app search <word>" << endl;
+                return 1;
+            }
+            string word = argv[2];
+            cout << dictionary.search(word) << endl;
+        } else if (command == "print_tree") {
+            dictionary.printTreeJSON();
+        } else {
+            cerr << "Unknown command: " << command << endl;
+            return 1;
+        }
+        return 0; // Exit after CLI command
+    }
+
+    int choice;
+    string word, meaning, filename;
 
     do {
         cout << "\n========================================" << endl;

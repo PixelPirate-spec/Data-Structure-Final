@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <string>
 #include "Student.h"
 
 using namespace std;
@@ -31,19 +32,6 @@ void quickSort(vector<Student>& students, int low, int high) {
 }
 
 // --- HeapSort Implementation (Descending by Score) ---
-
-// To sort descending, we want the smallest elements at the end.
-// A Min-Heap has the smallest element at the root.
-// If we swap the root (min) with the last element, the last element becomes the smallest.
-// Then we reduce the heap size and heapify.
-// Repeating this will place elements in descending order: [Largest, ..., Smallest]
-// Wait.
-// Step 1: Build Min Heap. Root = Min.
-// Step 2: Swap Root with End. End = Min.
-// Step 3: Reduce heap size by 1.
-// Repeat.
-// Array state: [Heap ... | Sorted Mins]
-// Final state: [Largest ... Smallest]
 
 void heapify(vector<Student>& students, int n, int i) {
     int smallest = i; // Initialize smallest as root
@@ -85,7 +73,7 @@ void heapSort(vector<Student>& students) {
 
 // --- Main Function ---
 
-// Custom function to check if the student list is empty, as requested.
+// Custom function to check if the student list is empty
 bool isStudentListEmpty(const vector<Student>& students) {
     return students.empty();
 }
@@ -96,6 +84,14 @@ void printStudents(const vector<Student>& students) {
         printStudent(s);
     }
     cout << endl;
+}
+
+void printStudentsCSV(const vector<Student>& students) {
+    // Header for CSV
+    cout << "id,name,score" << endl;
+    for (const auto& s : students) {
+        cout << s.id << "," << s.name << "," << s.score << endl;
+    }
 }
 
 void inputStudents(vector<Student>& students) {
@@ -121,16 +117,40 @@ void inputStudents(vector<Student>& students) {
     cout << n << " students added." << endl;
 }
 
-int main() {
+void initStudents(vector<Student>& students) {
+    // Pre-populate with some data for testing if empty
+    students.push_back({"1003", "Alice", 85.5});
+    students.push_back({"1001", "Bob", 92.0});
+    students.push_back({"1005", "Charlie", 78.5});
+    students.push_back({"1002", "David", 88.0});
+    students.push_back({"1004", "Eve", 95.5});
+}
+
+int main(int argc, char* argv[]) {
     vector<Student> students;
+    initStudents(students); // Always load default data for CLI/Demo
 
-    // // Pre-populate with some data for testing if empty
-    // students.push_back({"1003", "Alice", 85.5});
-    // students.push_back({"1001", "Bob", 92.0});
-    // students.push_back({"1005", "Charlie", 78.5});
-    // students.push_back({"1002", "David", 88.0});
-    // students.push_back({"1004", "Eve", 95.5});
+    // CLI Mode
+    if (argc > 1) {
+        string command = argv[1];
+        if (command == "sort_id") {
+            if (!students.empty()) {
+                quickSort(students, 0, students.size() - 1);
+            }
+            printStudentsCSV(students);
+        } else if (command == "sort_score") {
+            if (!students.empty()) {
+                heapSort(students);
+            }
+            printStudentsCSV(students);
+        } else {
+            cerr << "Unknown command: " << command << endl;
+            return 1;
+        }
+        return 0; // Exit after CLI command
+    }
 
+    // Interactive Mode
     int choice;
     do {
         cout << "========================================" << endl;
