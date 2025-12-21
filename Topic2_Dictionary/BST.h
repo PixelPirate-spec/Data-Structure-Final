@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -35,7 +37,7 @@ private:
         } else {
             // Word already exists, update meaning
             node->meaning = meaning;
-            cout << "Word '" << word << "' already exists. Meaning updated." << endl;
+            // Removed verbose output for bulk operations
         }
         return node;
     }
@@ -126,6 +128,52 @@ private:
         delete node;
     }
 
+    // Helper: Print tree structure with indentation
+    // indent: Current indentation string
+    // last: Is this node the last child of its parent?
+    void printTree(BSTNode* node, string indent, bool last) {
+        if (node != nullptr) {
+            cout << indent;
+            if (last) {
+                cout << "R----";
+                indent += "   ";
+            } else {
+                cout << "L----";
+                indent += "|  ";
+            }
+            cout << node->word << endl;
+            printTree(node->left, indent, false);
+            printTree(node->right, indent, true);
+        }
+    }
+
+    // Helper: Recursive fuzzy search
+    void searchByPrefix(BSTNode* node, string prefix) {
+        if (node == nullptr) return;
+
+        // Optimized traversal:
+        // If node's word is smaller than prefix, we only need to look at right subtree
+        // But prefix matching is tricky because "apple" > "app".
+        // Let's stick to standard In-Order traversal and check condition for simplicity and correctness
+
+        searchByPrefix(node->left, prefix);
+
+        // Check if node->word starts with prefix
+        if (node->word.find(prefix) == 0) {
+            cout << left << setw(20) << node->word << ": " << node->meaning << endl;
+        }
+
+        searchByPrefix(node->right, prefix);
+    }
+
+    // Helper: Save to file (In-order traversal)
+    void saveToFile(BSTNode* node, ofstream& outFile) {
+        if (node == nullptr) return;
+        saveToFile(node->left, outFile);
+        outFile << node->word << ":" << node->meaning << endl;
+        saveToFile(node->right, outFile);
+    }
+
 public:
     BST() : root(nullptr) {}
 
@@ -155,6 +203,57 @@ public:
             inOrder(root);
             cout << "----------------------------------------" << endl;
         }
+    }
+
+    // Extension: Visualization
+    void printTree() {
+        if (root == nullptr) {
+            cout << "Tree is empty." << endl;
+            return;
+        }
+        printTree(root, "", true);
+    }
+
+    // Extension: Fuzzy Search
+    void searchByPrefix(string prefix) {
+        cout << "Words starting with '" << prefix << "':" << endl;
+        cout << "----------------------------------------" << endl;
+        searchByPrefix(root, prefix);
+        cout << "----------------------------------------" << endl;
+    }
+
+    // Extension: File I/O
+    void saveToFile(string filename) {
+        ofstream outFile(filename);
+        if (!outFile) {
+            cout << "Error opening file for writing: " << filename << endl;
+            return;
+        }
+        saveToFile(root, outFile);
+        outFile.close();
+        cout << "Dictionary saved to " << filename << endl;
+    }
+
+    void loadFromFile(string filename) {
+        ifstream inFile(filename);
+        if (!inFile) {
+            cout << "Error opening file for reading: " << filename << endl;
+            return;
+        }
+
+        string line;
+        int count = 0;
+        while (getline(inFile, line)) {
+            size_t delimiterPos = line.find(':');
+            if (delimiterPos != string::npos) {
+                string word = line.substr(0, delimiterPos);
+                string meaning = line.substr(delimiterPos + 1);
+                insert(word, meaning);
+                count++;
+            }
+        }
+        inFile.close();
+        cout << "Loaded " << count << " entries from " << filename << endl;
     }
 };
 
