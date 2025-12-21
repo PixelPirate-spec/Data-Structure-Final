@@ -1,0 +1,2 @@
+Path Export:
+Main_Gate -> Library -> Canteen -> Dormitory

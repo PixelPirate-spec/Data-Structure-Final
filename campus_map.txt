@@ -1,0 +1,10 @@
+LOCATIONS
+1 80 Main_Gate The main entrance.
+2 95 Library A quiet place to study.
+3 90 Canteen Tasty and cheap food.
+4 85 Dormitory Where students live.
+EDGES
+1 2 500
+2 3 200
+3 4 100
+1 4 900
