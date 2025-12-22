@@ -162,6 +162,23 @@ public:
         }
     }
 
+    // Extension: Print Edges CSV for visualization
+    // u,v,weight
+    void printEdgesCSV() {
+        cout << "u,v,weight" << endl;
+        for (const auto& uVertex : vertices) {
+            for (const auto& edge : uVertex.edges) {
+                // Since undirected, print only if u < v to avoid duplicates
+                // Or print both if required by graphviz logic. Graphviz "strict graph" or just manual deduplication?
+                // Graphviz `graph` handles strict/undirected.
+                // Let's print all for simplicity, or deduplicate.
+                if (uVertex.id < vertices[idToIndex[edge.destination]].id) {
+                     cout << uVertex.id << "," << vertices[idToIndex[edge.destination]].id << "," << edge.weight << endl;
+                }
+            }
+        }
+    }
+
     // Dijkstra's Algorithm
     pair<map<int, int>, map<int, int>> dijkstra(int startId) {
         map<int, int> dist;
@@ -228,6 +245,26 @@ public:
             s.pop();
         }
         return path;
+    }
+
+    // Extension: Print Path with Distance for Python
+    // Format: Path: A->B->C | Total Distance: 500
+    void printPathWithDistance(int startId, int endId) {
+         vector<int> path = getShortestPath(startId, endId);
+         if (path.empty()) {
+             cout << "No path found." << endl;
+             return;
+         }
+
+         auto result = dijkstra(startId);
+         int distance = result.first[endId];
+
+         cout << "Path: ";
+         for (size_t i = 0; i < path.size(); ++i) {
+             cout << vertices[idToIndex[path[i]]].name;
+             if (i < path.size() - 1) cout << "->";
+         }
+         cout << " | Total Distance: " << distance << endl;
     }
 
     // Extension: Print Path Names CSV (Single line or List)

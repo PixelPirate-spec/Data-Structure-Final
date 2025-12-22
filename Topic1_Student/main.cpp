@@ -2,6 +2,8 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <fstream>
+#include <sstream>
 #include "Student.h"
 
 using namespace std;
@@ -126,13 +128,42 @@ void initStudents(vector<Student>& students) {
     students.push_back({"1004", "Eve", 95.5});
 }
 
+void loadStudentsFromFile(vector<Student>& students, const string& filename) {
+    students.clear();
+    ifstream infile(filename);
+    if (!infile.is_open()) {
+        cerr << "Error opening file: " << filename << endl;
+        return;
+    }
+
+    string line;
+    // Assuming format: ID Name Score (space separated)
+    while (getline(infile, line)) {
+        if (line.empty()) continue;
+        stringstream ss(line);
+        Student s;
+        if (ss >> s.id >> s.name >> s.score) {
+            students.push_back(s);
+        }
+    }
+    infile.close();
+}
+
 int main(int argc, char* argv[]) {
     vector<Student> students;
-    initStudents(students); // Always load default data for CLI/Demo
 
     // CLI Mode
     if (argc > 1) {
         string command = argv[1];
+        string filename;
+        if (argc > 2) {
+            filename = argv[2];
+            loadStudentsFromFile(students, filename);
+        } else {
+             // Fallback to default if no file provided (for backward compatibility/testing)
+             initStudents(students);
+        }
+
         if (command == "sort_id") {
             if (!students.empty()) {
                 quickSort(students, 0, students.size() - 1);
@@ -151,6 +182,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Interactive Mode
+    initStudents(students);
     int choice;
     do {
         cout << "========================================" << endl;

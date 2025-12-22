@@ -35,6 +35,13 @@ int main(int argc, char* argv[]) {
             }
             string word = argv[2];
             cout << dictionary.search(word) << endl;
+        } else if (command == "fuzzy") {
+             if (argc < 3) {
+                cerr << "Usage: ./app fuzzy <prefix>" << endl;
+                return 1;
+            }
+            string prefix = argv[2];
+            dictionary.searchByPrefix(prefix);
         } else if (command == "print_tree") {
             dictionary.printTreeJSON();
         } else {
