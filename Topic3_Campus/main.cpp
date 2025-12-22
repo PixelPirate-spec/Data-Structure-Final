@@ -45,9 +45,11 @@ int main(int argc, char* argv[]) {
             }
             int startId = stoi(argv[2]);
             int endId = stoi(argv[3]);
-            campus.printPathNamesCSV(startId, endId);
+            campus.printPathWithDistance(startId, endId);
         } else if (command == "locations") {
             campus.printLocationsCSV();
+        } else if (command == "edges") {
+            campus.printEdgesCSV();
         } else {
             cerr << "Unknown command: " << command << endl;
             return 1;
