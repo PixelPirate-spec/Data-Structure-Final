@@ -58,7 +58,7 @@ private:
     {
         if (node == nullptr)
         {
-            return "Word not found in the dictionary.";
+            return "字典中未找到该单词。";
         }
 
         if (word == node->word)
@@ -90,7 +90,7 @@ private:
     {
         if (node == nullptr)
         {
-            cout << "Word '" << word << "' not found." << endl;
+            cout << "单词 '" << word << "' 未找到。" << endl;
             return nullptr;
         }
 
@@ -209,50 +209,63 @@ private:
 
     // Helper: Serialize to JSON
     // Format: { "name": "word", "children": [ ... ] }
-    void serializeJSON(BSTNode* node, bool isLast) {
-        if (node == nullptr) return;
+    void serializeJSON(BSTNode *node, bool isLast)
+    {
+        if (node == nullptr)
+            return;
 
         cout << "{";
         cout << "\"name\": \"" << node->word << "\"";
 
-        if (node->left != nullptr || node->right != nullptr) {
+        if (node->left != nullptr || node->right != nullptr)
+        {
             cout << ", \"children\": [";
-            if (node->left) {
+            if (node->left)
+            {
                 serializeJSON(node->left, node->right == nullptr);
             }
-            if (node->right) {
-                if (node->left) cout << ", ";
+            if (node->right)
+            {
+                if (node->left)
+                    cout << ", ";
                 serializeJSON(node->right, true);
             }
             cout << "]";
         }
 
         cout << "}";
-        if (!isLast) cout << ", "; // This logic is tricky in recursion without knowing parent context perfectly or passing stream.
+        if (!isLast)
+            cout << ", "; // This logic is tricky in recursion without knowing parent context perfectly or passing stream.
         // Actually, cleaner way for simple tree is simpler recursion or printing structure as is.
         // But let's try to be valid JSON.
         // A better approach for the list of children is to handle commas between children.
     }
 
     // Helper 2: Serialize to JSON with proper stream handling
-    void printJSON(BSTNode* node) {
-         if (node == nullptr) return;
+    void printJSON(BSTNode *node)
+    {
+        if (node == nullptr)
+            return;
 
-         cout << "{\"name\": \"" << node->word << "\"";
-         if (node->left || node->right) {
-             cout << ", \"children\": [";
-             if (node->left) {
-                 printJSON(node->left);
-             }
-             if (node->left && node->right) {
-                 cout << ", ";
-             }
-             if (node->right) {
-                 printJSON(node->right);
-             }
-             cout << "]";
-         }
-         cout << "}";
+        cout << "{\"name\": \"" << node->word << "\"";
+        if (node->left || node->right)
+        {
+            cout << ", \"children\": [";
+            if (node->left)
+            {
+                printJSON(node->left);
+            }
+            if (node->left && node->right)
+            {
+                cout << ", ";
+            }
+            if (node->right)
+            {
+                printJSON(node->right);
+            }
+            cout << "]";
+        }
+        cout << "}";
     }
 
 public:
@@ -282,12 +295,12 @@ public:
     {
         if (root == nullptr)
         {
-            cout << "Dictionary is empty." << endl;
+            cout << "字典为空。" << endl;
         }
         else
         {
             cout << "----------------------------------------" << endl;
-            cout << left << setw(20) << "Word" << "Meaning" << endl;
+            cout << left << setw(20) << "单词" << "释义" << endl;
             cout << "----------------------------------------" << endl;
             inOrder(root);
             cout << "----------------------------------------" << endl;
@@ -299,7 +312,7 @@ public:
     {
         if (root == nullptr)
         {
-            cout << "Tree is empty." << endl;
+            cout << "树为空。" << endl;
             return;
         }
 
@@ -368,8 +381,10 @@ public:
     }
 
     // Extension: JSON Visualization for CLI
-    void printTreeJSON() {
-        if (root == nullptr) {
+    void printTreeJSON()
+    {
+        if (root == nullptr)
+        {
             cout << "{}" << endl;
             return;
         }
@@ -380,7 +395,7 @@ public:
     // Extension: Fuzzy Search
     void searchByPrefix(string prefix)
     {
-        cout << "Words starting with '" << prefix << "':" << endl;
+        cout << "以 '" << prefix << "' 开头的单词：" << endl;
         cout << "----------------------------------------" << endl;
         searchByPrefix(root, prefix);
         cout << "----------------------------------------" << endl;
@@ -392,12 +407,12 @@ public:
         ofstream outFile(filename);
         if (!outFile)
         {
-            cout << "Error opening file for writing: " << filename << endl;
+            cout << "写入文件打开失败: " << filename << endl;
             return;
         }
         saveToFile(root, outFile);
         outFile.close();
-        cout << "Dictionary saved to " << filename << endl;
+        cout << "字典已保存至 " << filename << endl;
     }
 
     void loadFromFile(string filename)
@@ -405,7 +420,7 @@ public:
         ifstream inFile(filename);
         if (!inFile)
         {
-            cout << "Error opening file for reading: " << filename << endl;
+            cout << "读取文件打开失败: " << filename << endl;
             return;
         }
 
@@ -423,7 +438,7 @@ public:
             }
         }
         inFile.close();
-        cout << "Loaded " << count << " entries from " << filename << endl;
+        cout << "从 " << filename << " 加载了 " << count << " 条记录。" << endl;
     }
 };
 
