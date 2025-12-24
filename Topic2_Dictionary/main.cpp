@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <fstream>
 #include "BST.h"
 
 using namespace std;
@@ -11,15 +12,28 @@ void pause()
     cin.get();
 }
 
-void initDictionary(BST &dictionary)
-{
-    dictionary.insert("Apple", "苹果");
-    dictionary.insert("Banana", "香蕉");
-    dictionary.insert("Cat", "猫");
-    dictionary.insert("Dog", "狗");
-    dictionary.insert("Elephant", "大象");
-    dictionary.insert("Application", "申请");
-    dictionary.insert("Appetite", "食欲");
+void initDictionary(BST& dictionary) {
+    // Try to load from default file first
+    string defaultFile = "dictionary.txt";
+    ifstream f(defaultFile);
+    if (f.good()) {
+        f.close();
+        // Load from file. Note: The class BST has loadFromFile which prints output.
+        // We might want to suppress output or just accept it.
+        // For CLI integration, minimal noise is better, but BST::loadFromFile prints "Loaded X entries".
+        // That's fine, Python can ignore it or parse it.
+        dictionary.loadFromFile(defaultFile);
+    } else {
+        f.close();
+        // Pre-populate dictionary if file doesn't exist
+        dictionary.insert("Apple", "A fruit");
+        dictionary.insert("Banana", "A long yellow fruit");
+        dictionary.insert("Cat", "A small domesticated carnivorous mammal");
+        dictionary.insert("Dog", "A domesticated carnivorous mammal");
+        dictionary.insert("Elephant", "A very large plant-eating mammal");
+        dictionary.insert("Application", "A formal request to be considered for a position");
+        dictionary.insert("Appetite", "A natural desire to satisfy a bodily need, especially for food");
+    }
 }
 
 int main(int argc, char *argv[])

@@ -13,8 +13,10 @@ TOPIC2_EXE = os.path.join(BUILD_DIR, "Topic2_Dictionary")
 TOPIC3_EXE = os.path.join(BUILD_DIR, "Topic3_Campus")
 
 STUDENTS_FILE = "students.txt"
+DICT_FILE = "dictionary.txt"
+MAP_FILE = "map_data.txt"
 
-
+# --- Helpers ---
 def run_cpp_command(executable, args):
     """Run C++ executable and capture output."""
     command = [executable] + args
@@ -29,236 +31,262 @@ def run_cpp_command(executable, args):
     except Exception as e:
         return False, f"Error: {str(e)}"
 
-
-def ensure_students_file():
+def ensure_files():
+    # Topic 1
     if not os.path.exists(STUDENTS_FILE):
         with open(STUDENTS_FILE, "w") as f:
-            # Add some initial data matching initStudents in C++
-            f.write("1003 爱丽丝 85.5\n")
-            f.write("1001 鲍勃 92.0\n")
-            f.write("1005 查理 78.5\n")
-            f.write("1002 大卫 88.0\n")
-            f.write("1004 伊芙 95.5\n")
+            f.write("1003 Alice 85.5\n1001 Bob 92.0\n1005 Charlie 78.5\n1002 David 88.0\n1004 Eve 95.5\n")
 
+    # Topic 2
+    if not os.path.exists(DICT_FILE):
+        with open(DICT_FILE, "w") as f:
+            f.write("Apple:A fruit\nBanana:A long yellow fruit\nCat:A small animal\n")
 
-st.set_page_config(page_title="数据结构期末项目", layout="wide")
-st.title("数据结构期末项目 - 增强版")
+    # Topic 3
+    if not os.path.exists(MAP_FILE):
+        with open(MAP_FILE, "w") as f:
+            f.write("LOCATIONS\n")
+            f.write("1 80 Main_Gate The_main_entrance.\n")
+            f.write("2 95 Library A_quiet_place_to_study.\n")
+            f.write("3 90 Canteen Tasty_and_cheap_food.\n")
+            f.write("EDGES\n")
+            f.write("1 2 500\n")
+            f.write("2 3 200\n")
+
+# --- UI Setup ---
+st.set_page_config(page_title="Data Structure Final Project", layout="wide")
+st.title("Data Structure Final Project - Interactive System")
+ensure_files()
 
 topic = st.sidebar.radio(
-    "选择主题",
-    (
-        "主题 1：成绩系统 (文件读写)",
-        "主题 2：字典系统 (可视化)",
-        "主题 3：校园地图 (可视化)",
-    ),
+    "Select Topic",
+    ("Topic 1: Grade System", "Topic 2: Dictionary System", "Topic 3: Campus Navigation")
 )
 
-# --- Topic 1 ---
-if topic == "主题 1：成绩系统 (文件读写)":
-    st.header("主题 1：成绩系统管理")
-    ensure_students_file()
+# ==========================================
+# Topic 1: Grade System
+# ==========================================
+if topic == "Topic 1: Grade System":
+    st.header("Topic 1: Grade System Management")
 
-    # Manage File
-    st.subheader("管理学生")
+    tab1, tab2 = st.tabs(["Sort & View", "Manage Data"])
 
-    # Read current file to display raw or for delete
-    try:
-        with open(STUDENTS_FILE, "r") as f:
-            lines = f.readlines()
-
-        # Parse for display
-        data = []
-        for line in lines:
-            parts = line.split()
-            if len(parts) >= 3:
-                data.append({"学号": parts[0], "姓名": parts[1], "成绩": parts[2]})
-        st.dataframe(pd.DataFrame(data), use_container_width=True)
-
-        # Add Student
-        with st.expander("添加新学生"):
-            with st.form("add_student"):
-                new_id = st.text_input("学号")
-                new_name = st.text_input("姓名 (无空格)")
-                new_score = st.text_input("成绩")
-                submitted = st.form_submit_button("添加")
-                if submitted:
-                    if new_id and new_name and new_score:
-                        with open(STUDENTS_FILE, "a") as f:
-                            f.write(f"\n{new_id} {new_name} {new_score}")
-                        st.success("学生已添加！")
-                        st.rerun()
-                    else:
-                        st.error("请填写所有字段。")
-
-        # Delete Student
-        with st.expander("删除学生"):
-            del_id = st.text_input("输入要删除的学号")
-            if st.button("删除"):
-                new_lines = [l for l in lines if not l.startswith(del_id + " ")]
-                if len(new_lines) < len(lines):
-                    with open(STUDENTS_FILE, "w") as f:
-                        f.writelines(new_lines)
-                    st.success(f"学生 {del_id} 已删除。")
-                    st.rerun()
+    with tab1:
+        st.subheader("Sorting (C++ Backend)")
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("Sort by ID"):
+                success, output = run_cpp_command(TOPIC1_EXE, ["sort_id", STUDENTS_FILE])
+                if success:
+                    st.dataframe(pd.read_csv(io.StringIO(output)), use_container_width=True)
                 else:
-                    st.warning("未找到该学号。")
+                    st.error(output)
+        with c2:
+            if st.button("Sort by Score"):
+                success, output = run_cpp_command(TOPIC1_EXE, ["sort_score", STUDENTS_FILE])
+                if success:
+                    st.dataframe(pd.read_csv(io.StringIO(output)), use_container_width=True)
+                else:
+                    st.error(output)
 
-    except Exception as e:
-        st.error(f"读取文件错误: {e}")
+    with tab2:
+        st.subheader("Manage Students (Python)")
+        # Display current file
+        if os.path.exists(STUDENTS_FILE):
+            with open(STUDENTS_FILE, "r") as f:
+                lines = f.readlines()
+            data = []
+            for line in lines:
+                parts = line.split()
+                if len(parts) >= 3:
+                    data.append({"ID": parts[0], "Name": parts[1], "Score": parts[2]})
+            st.dataframe(pd.DataFrame(data), use_container_width=True)
 
-    st.subheader("排序 (C++ 后端)")
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("按学号排序"):
-            success, output = run_cpp_command(TOPIC1_EXE, ["sort_id", STUDENTS_FILE])
-            if success:
-                st.dataframe(pd.read_csv(io.StringIO(output)), use_container_width=True)
-            else:
-                st.error(output)
-    with col2:
-        if st.button("按成绩排序"):
-            success, output = run_cpp_command(TOPIC1_EXE, ["sort_score", STUDENTS_FILE])
-            if success:
-                st.dataframe(pd.read_csv(io.StringIO(output)), use_container_width=True)
-            else:
-                st.error(output)
+        c1, c2 = st.columns(2)
+        with c1:
+            with st.form("add_stud"):
+                nid = st.text_input("ID")
+                nname = st.text_input("Name")
+                nscore = st.text_input("Score")
+                if st.form_submit_button("Add Student"):
+                    with open(STUDENTS_FILE, "a") as f:
+                        f.write(f"\n{nid} {nname} {nscore}")
+                    st.success("Added.")
+                    st.rerun()
+        with c2:
+            del_id = st.text_input("Delete ID")
+            if st.button("Delete Student"):
+                with open(STUDENTS_FILE, "r") as f: lines = f.readlines()
+                with open(STUDENTS_FILE, "w") as f:
+                    for l in lines:
+                        if not l.startswith(del_id + " "): f.write(l)
+                st.success("Deleted.")
+                st.rerun()
 
-# --- Topic 2 ---
-elif topic == "主题 2：字典系统 (可视化)":
-    st.header("主题 2：字典系统")
+# ==========================================
+# Topic 2: Dictionary System
+# ==========================================
+elif topic == "Topic 2: Dictionary System":
+    st.header("Topic 2: Dictionary System")
+    tab1, tab2 = st.tabs(["Search & Visualize", "Manage Dictionary"])
 
-    col1, col2 = st.columns([1, 2])
+    with tab1:
+        st.subheader("Search")
+        c1, c2 = st.columns(2)
+        with c1:
+            s_word = st.text_input("Exact Search")
+            if st.button("Search"):
+                s, o = run_cpp_command(TOPIC2_EXE, ["search", s_word])
+                if s: st.info(o)
+                else: st.error(o)
+        with c2:
+            f_word = st.text_input("Fuzzy Search (Prefix)")
+            if st.button("Fuzzy Search"):
+                s, o = run_cpp_command(TOPIC2_EXE, ["fuzzy", f_word])
+                if s: st.text(o)
+                else: st.error(o)
 
-    with col1:
-        st.subheader("搜索")
-        word = st.text_input("单词")
-        if st.button("精确搜索"):
-            success, output = run_cpp_command(TOPIC2_EXE, ["search", word])
-            if success:
-                st.info(output)
-            else:
-                st.error(output)
-
-        prefix = st.text_input("模糊前缀")
-        if st.button("模糊搜索"):
-            success, output = run_cpp_command(TOPIC2_EXE, ["fuzzy", prefix])
-            if success:
-                st.text(output)  # Output is formatted text from C++
-            else:
-                st.error(output)
-
-    with col2:
-        st.subheader("树形可视化")
-        if st.button("生成树形图"):
-            success, output = run_cpp_command(TOPIC2_EXE, ["print_tree"])
-            if success:
+        st.divider()
+        st.subheader("Tree Visualization")
+        if st.button("Visualize Tree"):
+            s, o = run_cpp_command(TOPIC2_EXE, ["print_tree"])
+            if s:
                 try:
-                    tree_json = json.loads(output)
-
-                    # Build Graphviz
+                    tree_json = json.loads(o)
                     graph = graphviz.Digraph()
-                    graph.attr(rankdir="TB")
-
-                    def add_nodes(node, parent_name=None):
+                    graph.attr(rankdir='TB')
+                    def add_nodes(node, parent=None):
                         name = node.get("name")
-                        if not name:
-                            return
-
+                        if not name: return
                         graph.node(name, label=name)
-                        if parent_name:
-                            graph.edge(parent_name, name)
-
-                        children = node.get("children", [])
-                        for child in children:
+                        if parent: graph.edge(parent, name)
+                        for child in node.get("children", []):
                             add_nodes(child, name)
-
                     add_nodes(tree_json)
                     st.graphviz_chart(graph)
-                except Exception as e:
-                    st.error(f"解析 JSON 可视化错误: {e}")
-                    st.text(output)
-            else:
-                st.error(output)
+                except: st.error("JSON Error")
 
-# --- Topic 3 ---
-elif topic == "主题 3：校园地图 (可视化)":
-    st.header("主题 3：校园导航")
+    with tab2:
+        st.subheader("Manage Dictionary")
+        # Display
+        if os.path.exists(DICT_FILE):
+            with open(DICT_FILE, "r") as f: lines = f.readlines()
+            data = []
+            for l in lines:
+                if ":" in l:
+                    w, m = l.strip().split(":", 1)
+                    data.append({"Word": w, "Meaning": m})
+            st.dataframe(pd.DataFrame(data), use_container_width=True)
 
-    # Load Data
-    success_loc, out_loc = run_cpp_command(TOPIC3_EXE, ["locations"])
-    success_edge, out_edge = run_cpp_command(TOPIC3_EXE, ["edges"])
+        c1, c2 = st.columns(2)
+        with c1:
+            with st.form("add_word"):
+                nw = st.text_input("Word")
+                nm = st.text_input("Meaning")
+                if st.form_submit_button("Insert"):
+                    with open(DICT_FILE, "a") as f:
+                        f.write(f"{nw}:{nm}\n")
+                    st.success("Inserted.")
+                    st.rerun()
+        with c2:
+            del_w = st.text_input("Delete Word")
+            if st.button("Delete"):
+                with open(DICT_FILE, "r") as f: lines = f.readlines()
+                with open(DICT_FILE, "w") as f:
+                    for l in lines:
+                        if not l.startswith(del_w + ":"): f.write(l)
+                st.success("Deleted.")
+                st.rerun()
 
-    if success_loc and success_edge:
-        try:
-            df_loc = pd.read_csv(io.StringIO(out_loc))
-            df_edge = pd.read_csv(io.StringIO(out_edge))
+# ==========================================
+# Topic 3: Campus Navigation
+# ==========================================
+elif topic == "Topic 3: Campus Navigation":
+    st.header("Topic 3: Campus Navigation")
+    tab1, tab2 = st.tabs(["Navigation", "Map Editor"])
 
-            # 1. Visualization
-            st.subheader("校园地图")
-            graph = graphviz.Graph()  # Undirected for campus paths usually
-            graph.attr(rankdir="LR")
+    # Common Data Load
+    s_loc, o_loc = run_cpp_command(TOPIC3_EXE, ["locations"])
+    df_loc = pd.DataFrame()
+    if s_loc:
+        try: df_loc = pd.read_csv(io.StringIO(o_loc))
+        except: pass
 
-            # Add nodes
-            # df_loc columns: id,name,popularity,info
-            for _, row in df_loc.iterrows():
-                label = f"{row['name']}\n(热度: {row['popularity']})"
-                graph.node(str(row["id"]), label=label, shape="box")
-
-            # Add edges
-            # df_edge columns: u,v,weight
-            for _, row in df_edge.iterrows():
-                graph.edge(str(row["u"]), str(row["v"]), label=str(row["weight"]))
-
-            st.graphviz_chart(graph)
-
-            # 2. Path Finding
-            st.subheader("查找最短路径")
-            # Map ID to Name for dropdown
-            id_to_name = {
-                row["id"]: f"{row['name']} (ID:{row['id']})"
-                for _, row in df_loc.iterrows()
-            }
-
+    with tab1:
+        st.subheader("Navigation")
+        if not df_loc.empty:
+            id_map = {row['id']: f"{row['name']} ({row['id']})" for _, row in df_loc.iterrows()}
             c1, c2 = st.columns(2)
-            with c1:
-                start = st.selectbox(
-                    "起点",
-                    options=list(id_to_name.keys()),
-                    format_func=lambda x: id_to_name[x],
-                )
-            with c2:
-                end = st.selectbox(
-                    "终点",
-                    options=list(id_to_name.keys()),
-                    format_func=lambda x: id_to_name[x],
-                    index=min(1, len(id_to_name) - 1),
-                )
+            with c1: start = st.selectbox("Start", options=id_map.keys(), format_func=lambda x: id_map[x])
+            with c2: end = st.selectbox("End", options=id_map.keys(), format_func=lambda x: id_map[x], index=min(1, len(id_map)-1))
 
-            if st.button("计算路径"):
+            if st.button("Find Path"):
                 s, o = run_cpp_command(TOPIC3_EXE, ["path", str(start), str(end)])
                 if s:
-                    # Output: Path: A->B->C | Total Distance: 500
-                    # Let's parse it to display nicely
                     if "|" in o:
-                        parts = o.split("|")
-                        path_str = parts[0].replace("Path: ", "").strip()
-                        dist_str = parts[1].strip()
-                        dist_str = dist_str.replace("Total Distance", "总距离")
+                        path_p, dist_p = o.split("|")
+                        st.success(f"**{dist_p.strip()}**")
+                        st.info(path_p.strip())
+                    else: st.warning(o)
+                else: st.error(o)
 
-                        st.success(f"**{dist_str}**")
+        st.subheader("Keyword Search")
+        k = st.text_input("Search Location")
+        if st.button("Search Spot"):
+            s, o = run_cpp_command(TOPIC3_EXE, ["search", k])
+            if s: st.text(o)
+            else: st.error(o)
 
-                        # Visual path
-                        nodes = path_str.split("->")
-                        st.write(" -> ".join([f"`{n}`" for n in nodes]))
-                    else:
-                        st.info(o)
-                else:
-                    st.error(o)
+    with tab2:
+        st.subheader("Map Editor")
+        st.dataframe(df_loc, use_container_width=True)
 
-        except Exception as e:
-            st.error(f"处理地图数据错误: {e}")
-    else:
-        st.error("无法从 C++ 后端加载地图数据。")
+        with st.expander("Add Location"):
+            with st.form("add_loc"):
+                lid = st.number_input("ID", step=1)
+                lname = st.text_input("Name")
+                lpop = st.number_input("Popularity")
+                linfo = st.text_input("Info")
+                if st.form_submit_button("Add"):
+                    # Insert before EDGES
+                    with open(MAP_FILE, "r") as f: lines = f.readlines()
+                    idx = 0
+                    for i, l in enumerate(lines):
+                        if "EDGES" in l:
+                            idx = i
+                            break
+                    if idx == 0: idx = len(lines) # Append if no edges
+                    lines.insert(idx, f"{lid} {lpop} {lname} {linfo}\n")
+                    with open(MAP_FILE, "w") as f: f.writelines(lines)
+                    st.success("Added Location.")
+                    st.rerun()
+
+        with st.expander("Add Path"):
+            with st.form("add_path"):
+                u = st.number_input("Start ID", step=1)
+                v = st.number_input("End ID", step=1)
+                w = st.number_input("Weight", step=1)
+                if st.form_submit_button("Add Edge"):
+                    # Append to end (after EDGES)
+                    with open(MAP_FILE, "a") as f:
+                        f.write(f"{u} {v} {w}\n")
+                    st.success("Added Edge.")
+                    st.rerun()
+
+        st.subheader("Map Visualization")
+        s_edge, o_edge = run_cpp_command(TOPIC3_EXE, ["edges"])
+        if st.button("Refresh Map"):
+            if s_loc and s_edge:
+                try:
+                    df_edge = pd.read_csv(io.StringIO(o_edge))
+                    g = graphviz.Graph()
+                    g.attr(rankdir='LR')
+                    for _, r in df_loc.iterrows():
+                        g.node(str(r['id']), label=f"{r['name']}\nPop:{r['popularity']}")
+                    for _, r in df_edge.iterrows():
+                        g.edge(str(r['u']), str(r['v']), label=str(r['weight']))
+                    st.graphviz_chart(g)
+                except: st.error("Viz Error")
 
 st.markdown("---")
-st.caption("高级数据结构项目")
+st.caption("Auto-syncs with .txt files. C++ performs calculations.")

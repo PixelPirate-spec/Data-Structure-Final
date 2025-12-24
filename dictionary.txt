@@ -1,0 +1,3 @@
+Apple:A fruit
+Banana:A long yellow fruit
+Cat:A small animal
