@@ -1,0 +1,7 @@
+LOCATIONS
+1 80 Main_Gate The_main_entrance.
+2 95 Library A_quiet_place_to_study.
+3 90 Canteen Tasty_and_cheap_food.
+EDGES
+1 2 500
+2 3 200

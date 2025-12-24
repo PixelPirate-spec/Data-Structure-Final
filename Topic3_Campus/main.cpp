@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <fstream>
 #include "Graph.h"
 
 using namespace std;
@@ -11,24 +12,32 @@ void pause() {
 }
 
 void initCampus(CampusGraph& campus) {
-    // Pre-populate campus data (Default)
-    campus.addLocation(1, "Main_Gate", "The main entrance.", 80);
-    campus.addLocation(2, "Library", "A quiet place to study.", 95);
-    campus.addLocation(3, "Canteen", "Tasty and cheap food.", 90);
-    campus.addLocation(4, "Dormitory", "Where students live.", 85);
-    campus.addLocation(5, "Teaching_Bldg", "Classes are held here.", 88);
-    campus.addLocation(6, "Gymnasium", "Sports and events.", 75);
-    campus.addLocation(7, "Admin_Bldg", "Administrative offices.", 50);
+    string defaultFile = "map_data.txt";
+    ifstream f(defaultFile);
+    if (f.good()) {
+        f.close();
+        campus.loadMapFromFile(defaultFile);
+    } else {
+        f.close();
+        // Pre-populate campus data (Default)
+        campus.addLocation(1, "Main_Gate", "The main entrance.", 80);
+        campus.addLocation(2, "Library", "A quiet place to study.", 95);
+        campus.addLocation(3, "Canteen", "Tasty and cheap food.", 90);
+        campus.addLocation(4, "Dormitory", "Where students live.", 85);
+        campus.addLocation(5, "Teaching_Bldg", "Classes are held here.", 88);
+        campus.addLocation(6, "Gymnasium", "Sports and events.", 75);
+        campus.addLocation(7, "Admin_Bldg", "Administrative offices.", 50);
 
-    campus.addPath(1, 5, 200);
-    campus.addPath(1, 6, 500);
-    campus.addPath(5, 2, 100);
-    campus.addPath(5, 3, 150);
-    campus.addPath(2, 4, 300);
-    campus.addPath(3, 4, 50);
-    campus.addPath(6, 3, 250);
-    campus.addPath(6, 7, 400);
-    campus.addPath(7, 2, 100);
+        campus.addPath(1, 5, 200);
+        campus.addPath(1, 6, 500);
+        campus.addPath(5, 2, 100);
+        campus.addPath(5, 3, 150);
+        campus.addPath(2, 4, 300);
+        campus.addPath(3, 4, 50);
+        campus.addPath(6, 3, 250);
+        campus.addPath(6, 7, 400);
+        campus.addPath(7, 2, 100);
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -50,6 +59,13 @@ int main(int argc, char* argv[]) {
             campus.printLocationsCSV();
         } else if (command == "edges") {
             campus.printEdgesCSV();
+        } else if (command == "search") {
+             if (argc < 3) {
+                cerr << "Usage: ./app search <keyword>" << endl;
+                return 1;
+            }
+            string keyword = argv[2];
+            campus.searchSpot(keyword);
         } else {
             cerr << "Unknown command: " << command << endl;
             return 1;
