@@ -8,8 +8,7 @@
 
 using namespace std;
 
-// --- QuickSort Implementation (Ascending by ID) ---
-
+// 快速排序的前置函数
 int partition(vector<Student> &students, int low, int high)
 {
     string pivot = students[high].id;
@@ -17,7 +16,7 @@ int partition(vector<Student> &students, int low, int high)
 
     for (int j = low; j <= high - 1; j++)
     {
-        // Ascending order: if current element is smaller than pivot, increment i and swap
+        // 如果当前的小于 pivot（基准）-》交换
         if (students[j].id < pivot)
         {
             i++;
@@ -38,27 +37,26 @@ void quickSort(vector<Student> &students, int low, int high)
     }
 }
 
-// --- HeapSort Implementation (Descending by Score) ---
+// 堆排序（小根堆）
 
 void heapify(vector<Student> &students, int n, int i)
 {
-    int smallest = i;  // Initialize smallest as root
+    int smallest = i;  // 初始化最小的为根
     int l = 2 * i + 1; // left = 2*i + 1
     int r = 2 * i + 2; // right = 2*i + 2
 
-    // If left child is smaller than root
+    // 如果左孩子 小于 根
     if (l < n && students[l].score < students[smallest].score)
         smallest = l;
-
-    // If right child is smaller than smallest so far
+    // 如果右孩子 小于 最小值
     if (r < n && students[r].score < students[smallest].score)
         smallest = r;
 
-    // If smallest is not root
+    // 如果最小的不是根
     if (smallest != i)
     {
         swap(students[i], students[smallest]);
-        // Recursively heapify the affected sub-tree
+        // 递归子树
         heapify(students, n, smallest);
     }
 }
@@ -67,24 +65,19 @@ void heapSort(vector<Student> &students)
 {
     int n = students.size();
 
-    // Build heap (rearrange array)
+    // 初始化小根堆
     for (int i = n / 2 - 1; i >= 0; i--)
         heapify(students, n, i);
 
-    // One by one extract an element from heap
+    // 一个一个提取出来排序
     for (int i = n - 1; i > 0; i--)
     {
-        // Move current root to end
+        // 将堆顶元素移动至末尾
         swap(students[0], students[i]);
-
-        // call max heapify on the reduced heap
         heapify(students, i, 0);
     }
 }
 
-// --- Main Function ---
-
-// Custom function to check if the student list is empty
 bool isStudentListEmpty(const vector<Student> &students)
 {
     return students.empty();
@@ -102,7 +95,6 @@ void printStudents(const vector<Student> &students)
 
 void printStudentsCSV(const vector<Student> &students)
 {
-    // Header for CSV
     cout << "学号,姓名,成绩" << endl;
     for (const auto &s : students)
     {
@@ -138,7 +130,6 @@ void inputStudents(vector<Student> &students)
 
 void initStudents(vector<Student> &students)
 {
-    // Pre-populate with some data for testing if empty
     students.push_back({"1003", "爱丽丝", 85.5});
     students.push_back({"1001", "鲍勃", 92.0});
     students.push_back({"1005", "查理", 78.5});
@@ -157,7 +148,6 @@ void loadStudentsFromFile(vector<Student> &students, const string &filename)
     }
 
     string line;
-    // Assuming format: ID Name Score (space separated)
     while (getline(infile, line))
     {
         if (line.empty())
@@ -176,7 +166,6 @@ int main(int argc, char *argv[])
 {
     vector<Student> students;
 
-    // CLI Mode
     if (argc > 1)
     {
         string command = argv[1];
@@ -188,7 +177,6 @@ int main(int argc, char *argv[])
         }
         else
         {
-            // Fallback to default if no file provided (for backward compatibility/testing)
             initStudents(students);
         }
 
@@ -213,10 +201,9 @@ int main(int argc, char *argv[])
             cerr << "未知命令：" << command << endl;
             return 1;
         }
-        return 0; // Exit after CLI command
+        return 0; 
     }
 
-    // Interactive Mode
     initStudents(students);
     int choice;
     do

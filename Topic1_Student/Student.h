@@ -12,7 +12,7 @@ struct Student
     float score;
 };
 
-// Helper function to print a single student
+
 inline void printStudentHeader()
 {
     std::cout << std::left << std::setw(15) << "学号"
@@ -28,4 +28,4 @@ inline void printStudent(const Student &s)
               << std::setw(10) << s.score << std::endl;
 }
 
-#endif // STUDENT_H
+#endif 

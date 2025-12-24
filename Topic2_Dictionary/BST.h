@@ -10,8 +10,6 @@
 #include <map>
 
 using namespace std;
-
-// BST Node Structure
 struct BSTNode
 {
     string word;
@@ -22,15 +20,15 @@ struct BSTNode
     BSTNode(string w, string m) : word(w), meaning(m), left(nullptr), right(nullptr) {}
 };
 
-// Binary Search Tree Class
+// 二叉搜索树类
 class BST
 {
 private:
     BSTNode *root;
-
-    // Helper: Insert recursively
+    // 插入节点
     BSTNode *insert(BSTNode *node, string word, string meaning)
     {
+        // 当这是叶子节点是创建新节点并返回，供上层递归调用
         if (node == nullptr)
         {
             return new BSTNode(word, meaning);
@@ -46,14 +44,12 @@ private:
         }
         else
         {
-            // Word already exists, update meaning
+            // 单词已存在-》去重+更新
             node->meaning = meaning;
-            // Removed verbose output for bulk operations
         }
         return node;
     }
 
-    // Helper: Search recursively
     string search(BSTNode *node, string word)
     {
         if (node == nullptr)
@@ -75,7 +71,6 @@ private:
         }
     }
 
-    // Helper: Find minimum value node in a subtree (used for deletion)
     BSTNode *findMin(BSTNode *node)
     {
         while (node && node->left != nullptr)
@@ -85,7 +80,6 @@ private:
         return node;
     }
 
-    // Helper: Delete recursively
     BSTNode *remove(BSTNode *node, string word)
     {
         if (node == nullptr)
@@ -94,7 +88,6 @@ private:
             return nullptr;
         }
 
-        // 1. Locate the node to be deleted
         if (word < node->word)
         {
             node->left = remove(node->left, word);
@@ -105,45 +98,44 @@ private:
         }
         else
         {
-            // Found the node to delete
-
-            // Case 1: Node has no children (Leaf node)
+            // Case 1: 此节点没有孩子
             if (node->left == nullptr && node->right == nullptr)
             {
                 delete node;
                 node = nullptr;
             }
-            // Case 2: Node has only one child
+            // Case 2: 节点有一个孩子
             else if (node->left == nullptr)
             {
                 BSTNode *temp = node;
-                node = node->right; // Replace with right child
+                node = node->right; 
                 delete temp;
             }
             else if (node->right == nullptr)
             {
                 BSTNode *temp = node;
-                node = node->left; // Replace with left child
+                node = node->left; // 替换为左子节点
                 delete temp;
             }
-            // Case 3: Node has two children
+            // Case 3: 节点有两个孩子
             else
             {
-                // Strategy: Find the Inorder Successor (smallest node in the right subtree)
+                // 查找柚子树最小节点（中序后继节点）
+                // 中序后继节点的关键字大于待删除节点，且其要么没有子节点，要么只有右子节点（不可能有左子节点，因为它是右子树的最小值），后续删除该后继节点只需处理简单场景（无子女 / 仅有一个子女）。
                 BSTNode *temp = findMin(node->right);
 
-                // Copy the successor's content to this node
+                // 用后继节点覆盖这个节点的值
                 node->word = temp->word;
                 node->meaning = temp->meaning;
 
-                // Delete the successor node from the right subtree
+                // 精准定位，删除冗余节点
                 node->right = remove(node->right, temp->word);
             }
         }
         return node;
     }
 
-    // Helper: In-order traversal
+    // 中序遍历
     void inOrder(BSTNode *node)
     {
         if (node == nullptr)
@@ -154,7 +146,7 @@ private:
         inOrder(node->right);
     }
 
-    // Helper: Clear tree (destructor)
+    // 清空树（析构函数）
     void clear(BSTNode *node)
     {
         if (node == nullptr)
@@ -164,31 +156,34 @@ private:
         delete node;
     }
 
-    // Helper: Calculate positions for tree visualization
+    // 计算树可视化位置
     void calcPos(BSTNode *node, int &x, int y, map<BSTNode *, pair<int, int>> &pos)
     {
         if (!node)
             return;
+        // 1. 递归处理左子树：计算左子树所有节点的坐标
         calcPos(node->left, x, y + 2, pos);
+        // 2. 为当前节点分配并存储坐标
         pos[node] = {x, y};
-        x += node->word.length() + 2; // Spacing
+        // 3. 更新x坐标：为后续节点预留水平空间
+        x += node->word.length() + 2; // 间距
         calcPos(node->right, x, y + 2, pos);
     }
 
-    // Helper: Recursive fuzzy search
+    // 递归模糊搜索
     void searchByPrefix(BSTNode *node, string prefix)
     {
         if (node == nullptr)
             return;
 
-        // Optimized traversal:
-        // If node's word is smaller than prefix, we only need to look at right subtree
-        // But prefix matching is tricky because "apple" > "app".
-        // Let's stick to standard In-Order traversal and check condition for simplicity and correctness
+        // 优化遍历：
+        // 如果节点的单词小于前缀，我们只需要查看右子树
+        // 但是前缀匹配很棘手，因为 "apple" > "app"。
+        // 为简单和正确起见，我们坚持使用标准中序遍历并检查条件
 
         searchByPrefix(node->left, prefix);
 
-        // Check if node->word starts with prefix
+        // 检查节点单词是否以该前缀开头
         if (node->word.find(prefix) == 0)
         {
             cout << left << setw(20) << node->word << ": " << node->meaning << endl;
@@ -197,7 +192,7 @@ private:
         searchByPrefix(node->right, prefix);
     }
 
-    // Helper: Save to file (In-order traversal)
+    // 保存到文件（中序遍历）
     void saveToFile(BSTNode *node, ofstream &outFile)
     {
         if (node == nullptr)
@@ -207,8 +202,7 @@ private:
         saveToFile(node->right, outFile);
     }
 
-    // Helper: Serialize to JSON
-    // Format: { "name": "word", "children": [ ... ] }
+    // 序列化为 JSON
     void serializeJSON(BSTNode *node, bool isLast)
     {
         if (node == nullptr)
@@ -235,13 +229,10 @@ private:
 
         cout << "}";
         if (!isLast)
-            cout << ", "; // This logic is tricky in recursion without knowing parent context perfectly or passing stream.
-        // Actually, cleaner way for simple tree is simpler recursion or printing structure as is.
-        // But let's try to be valid JSON.
-        // A better approach for the list of children is to handle commas between children.
+            cout << ", "; 
     }
 
-    // Helper 2: Serialize to JSON with proper stream handling
+    // 处理序列化为 JSON
     void printJSON(BSTNode *node)
     {
         if (node == nullptr)
@@ -307,7 +298,7 @@ public:
         }
     }
 
-    // Extension: Visualization
+    // 可视化
     void printTree()
     {
         if (root == nullptr)
@@ -327,7 +318,7 @@ public:
                 height = entry.second.second;
         }
 
-        // Create canvas
+        // 创建画布
         vector<string> canvas(height + 1, string(x, ' '));
 
         for (auto const &entry : pos)
@@ -337,14 +328,14 @@ public:
             int py = entry.second.second;
             string w = node->word;
 
-            // Print word
+            // 打印单词
             for (int i = 0; i < w.length(); ++i)
             {
                 if (px + i < x)
                     canvas[py][px + i] = w[i];
             }
 
-            // Draw branches
+            // 绘制分支
             if (node->left)
             {
                 pair<int, int> lp = pos[node->left];
@@ -380,7 +371,7 @@ public:
         }
     }
 
-    // Extension: JSON Visualization for CLI
+    // 用于 CLI 的 JSON 可视化
     void printTreeJSON()
     {
         if (root == nullptr)
@@ -392,7 +383,7 @@ public:
         cout << endl;
     }
 
-    // Extension: Fuzzy Search
+    // 模糊搜索
     void searchByPrefix(string prefix)
     {
         cout << "以 '" << prefix << "' 开头的单词：" << endl;
@@ -401,7 +392,7 @@ public:
         cout << "----------------------------------------" << endl;
     }
 
-    // Extension: File I/O
+    // 文件 I/O
     void saveToFile(string filename)
     {
         ofstream outFile(filename);

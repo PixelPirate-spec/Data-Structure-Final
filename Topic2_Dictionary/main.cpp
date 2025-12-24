@@ -13,7 +13,6 @@ void pause()
 
 void initDictionary(BST &dictionary)
 {
-    // Pre-populate dictionary
     dictionary.insert("Apple", "苹果");
     dictionary.insert("Banana", "香蕉");
     dictionary.insert("Cat", "猫");
@@ -28,7 +27,6 @@ int main(int argc, char *argv[])
     BST dictionary;
     initDictionary(dictionary);
 
-    // CLI Mode
     if (argc > 1)
     {
         string command = argv[1];
@@ -89,7 +87,7 @@ int main(int argc, char *argv[])
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             choice = -1;
         }
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer for getline
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
 
         switch (choice)
         {
