@@ -10,9 +10,9 @@ void initCampus(CampusGraph& campus, const string& filename = "") {
         campus.loadMapFromFile(filename);
     } else {
         // 默认演示数据
-        campus.addLocation(1, "Main_Gate", "The main entrance.", 80);
-        campus.addLocation(2, "Library", "A quiet place to study.", 95);
-        campus.addLocation(3, "Canteen", "Tasty and cheap food.", 90);
+        campus.addLocation(1, "Main_Gate", "主入口", 80);
+        campus.addLocation(2, "Library", "一个安静的学习场所", 95);
+        campus.addLocation(3, "Canteen", "美味又便宜的食物", 90);
         campus.addPath(1, 2, 200);
         campus.addPath(2, 3, 100);
     }
