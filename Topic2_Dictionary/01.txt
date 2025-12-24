@@ -1,0 +1,6 @@
+Appetite:A natural desire to satisfy a bodily need, especially for food
+Application:A formal request to be considered for a position
+Banana:A long yellow fruit
+Cat:A small domesticated carnivorous mammal
+Dog:A domesticated carnivorous mammal
+Elephant:A very large plant-eating mammal

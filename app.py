@@ -22,14 +22,9 @@ def run_cpp_command(executable, args):
     command = [executable] + args
     try:
         if not os.path.exists(executable):
-             return False, f"Executable not found: {executable}. Please compile."
+            return False, f"Executable not found: {executable}. Please compile."
 
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            check=True
-        )
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
         return True, result.stdout.strip()
     except subprocess.CalledProcessError as e:
         return False, f"Error running command: {e}\nStderr: {e.stderr}"
