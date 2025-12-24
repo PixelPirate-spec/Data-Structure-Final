@@ -13,26 +13,26 @@ void pause()
 }
 
 void initDictionary(BST& dictionary) {
-    // Try to load from default file first
+    // 首先尝试从默认文件加载
     string defaultFile = "dictionary.txt";
     ifstream f(defaultFile);
     if (f.good()) {
         f.close();
-        // Load from file. Note: The class BST has loadFromFile which prints output.
-        // We might want to suppress output or just accept it.
-        // For CLI integration, minimal noise is better, but BST::loadFromFile prints "Loaded X entries".
-        // That's fine, Python can ignore it or parse it.
+        // 从文件加载。注意：BST类中的loadFromFile方法会打印输出。
+        // 我们可能想要抑制输出，或者直接接受它。
+        // 对于命令行集成来说，输出越少越好，但是BST::loadFromFile会打印 "Loaded X entries"。
+        // 这没关系，Python可以忽略或解析它。
         dictionary.loadFromFile(defaultFile);
     } else {
         f.close();
-        // Pre-populate dictionary if file doesn't exist
-        dictionary.insert("Apple", "A fruit");
-        dictionary.insert("Banana", "A long yellow fruit");
-        dictionary.insert("Cat", "A small domesticated carnivorous mammal");
-        dictionary.insert("Dog", "A domesticated carnivorous mammal");
-        dictionary.insert("Elephant", "A very large plant-eating mammal");
-        dictionary.insert("Application", "A formal request to be considered for a position");
-        dictionary.insert("Appetite", "A natural desire to satisfy a bodily need, especially for food");
+        // 如果文件不存在，则预填充字典
+        dictionary.insert("Apple", "苹果");
+        dictionary.insert("Banana", "香蕉");
+        dictionary.insert("Cat", "猫");
+        dictionary.insert("Dog", "狗");
+        dictionary.insert("Elephant", "大象");
+        dictionary.insert("Application", "应用");
+        dictionary.insert("Appetite", "食欲");
     }
 }
 
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
             cerr << "未知命令: " << command << endl;
             return 1;
         }
-        return 0; // Exit after CLI command
+        return 0; // 执行CLI命令后退出
     }
 
     int choice;
