@@ -275,8 +275,8 @@ elif "2." in menu:
     t1, t2 = st.tabs(["🔍 查询", "📝 管理"])
 
     with t1:
-        # 保持 1:3 比例，这样图还是有足够空间，但不强制放大了
-        c1, c2 = st.columns([1, 3])
+        # 侧重控制，改为 2:1 布局
+        c1, c2 = st.columns([2, 1])
         with c1:
             w = st.text_input("输入单词")
             if st.button("精确查找"):
@@ -323,7 +323,7 @@ elif "3." in menu:
     loc_options = [f"{lid}: {name}" for lid, name in locs_dict.items()]
 
     with t1:
-        # 保持 1:3 比例
+        # 侧重可视化，改为 1:3 布局
         c1, c2 = st.columns([1, 3])
         with c1:
             if loc_options:
@@ -363,3 +363,4 @@ elif "3." in menu:
             with open(MAP_FILE, "w") as f:
                 f.write(st.session_state.map_editor)
             st.success("已更新")
+            
