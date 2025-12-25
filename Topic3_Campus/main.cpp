@@ -5,176 +5,86 @@
 
 using namespace std;
 
-void pause() {
-    cout << "Press Enter to continue...";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cin.get();
-}
-
-void initCampus(CampusGraph& campus) {
-    string defaultFile = "map_data.txt";
-    ifstream f(defaultFile);
-    if (f.good()) {
-        f.close();
-        campus.loadMapFromFile(defaultFile);
+void initCampus(CampusGraph& campus, const string& filename = "") {
+    if (!filename.empty()) {
+        campus.loadMapFromFile(filename);
     } else {
-        f.close();
-        // Pre-populate campus data (Default)
-        campus.addLocation(1, "Main_Gate", "The main entrance.", 80);
-        campus.addLocation(2, "Library", "A quiet place to study.", 95);
-        campus.addLocation(3, "Canteen", "Tasty and cheap food.", 90);
-        campus.addLocation(4, "Dormitory", "Where students live.", 85);
-        campus.addLocation(5, "Teaching_Bldg", "Classes are held here.", 88);
-        campus.addLocation(6, "Gymnasium", "Sports and events.", 75);
-        campus.addLocation(7, "Admin_Bldg", "Administrative offices.", 50);
-
-        campus.addPath(1, 5, 200);
-        campus.addPath(1, 6, 500);
-        campus.addPath(5, 2, 100);
-        campus.addPath(5, 3, 150);
-        campus.addPath(2, 4, 300);
-        campus.addPath(3, 4, 50);
-        campus.addPath(6, 3, 250);
-        campus.addPath(6, 7, 400);
-        campus.addPath(7, 2, 100);
+        // 默认演示数据
+        campus.addLocation(1, "Main_Gate", "主入口", 80);
+        campus.addLocation(2, "Library", "一个安静的学习场所", 95);
+        campus.addLocation(3, "Canteen", "美味又便宜的食物", 90);
+        campus.addPath(1, 2, 200);
+        campus.addPath(2, 3, 100);
     }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     CampusGraph campus;
-    initCampus(campus);
-
-    // CLI Mode
+    
+    // --- CLI 模式 (增强版) ---
     if (argc > 1) {
         string command = argv[1];
+        
+        // 自动识别最后一个参数是否为文件名
+        string mapFile = "";
+        if (argc >= 3 && string(argv[argc-1]).find(".txt") != string::npos) {
+            mapFile = argv[argc-1];
+        }
+        initCampus(campus, mapFile);
+
         if (command == "path") {
-            if (argc < 4) {
-                cerr << "Usage: ./app path <startId> <endId>" << endl;
-                return 1;
-            }
-            int startId = stoi(argv[2]);
-            int endId = stoi(argv[3]);
-            campus.printPathWithDistance(startId, endId);
+            if (argc < 4) return 1;
+            campus.printPathWithDistance(stoi(argv[2]), stoi(argv[3]));
+        } else if (command == "search") {
+            if (argc < 3) return 1;
+            campus.searchSpot(argv[2]);
+        } else if (command == "sort_pop") {
+            // [新增功能] 按热度排序
+            campus.printSortedByPopularity();
+        } else if (command == "sort_id") {
+            // [新增功能] 按ID排序
+            campus.printSortedById();
         } else if (command == "locations") {
             campus.printLocationsCSV();
-        } else if (command == "edges") {
-            campus.printEdgesCSV();
-        } else if (command == "search") {
-             if (argc < 3) {
-                cerr << "Usage: ./app search <keyword>" << endl;
-                return 1;
-            }
-            string keyword = argv[2];
-            campus.searchSpot(keyword);
-        } else {
-            cerr << "Unknown command: " << command << endl;
-            return 1;
         }
-        return 0; // Exit after CLI command
+        return 0;
     }
 
+    // --- 交互菜单模式 ---
+    initCampus(campus, "map_data.txt");
     int choice;
-    vector<int> lastPath; // Store the last calculated path for export
-
     do {
-        cout << "\n========================================" << endl;
-        cout << "Topic 3: Campus Navigation System" << endl;
-        cout << "========================================" << endl;
-        cout << "1. Add Location" << endl;
-        cout << "2. Add Path" << endl;
-        cout << "3. Query Shortest Path" << endl;
-        cout << "4. Browse Locations (Sort by Popularity/ID)" << endl;
-        cout << "5. Keyword Search (Prefix)" << endl;
-        cout << "6. Load Map from File" << endl;
-        cout << "7. Export Last Path to File" << endl;
-        cout << "0. Exit" << endl;
-        cout << "Enter choice: ";
-
-        if (!(cin >> choice)) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            choice = -1;
-        }
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer for getline
+        cout << "\n=== 校园导航 ===" << endl;
+        cout << "1. 加地点 2. 加路径 3. 查路径 4. 浏览(排序) 5. 搜地点 6. 载入 7. 导出 0. 退出" << endl;
+        cout << "选项: ";
+        cin >> choice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         switch (choice) {
             case 1: {
-                int id, pop;
-                string name, info;
-                cout << "Enter ID: "; cin >> id;
-                cout << "Enter Name (No spaces, use _): "; cin >> name;
-                cout << "Enter Popularity (0-100): "; cin >> pop;
-                cin.ignore(); // consume newline
-                cout << "Enter Info: "; getline(cin, info);
+                int id, pop; string name, info;
+                cout << "ID: "; cin >> id; cout << "名: "; cin >> name; cout << "热度: "; cin >> pop;
+                cin.ignore(); cout << "简介: "; getline(cin, info);
                 campus.addLocation(id, name, info, pop);
-                cout << "Location added." << endl;
                 break;
             }
             case 2: {
-                int u, v, w;
-                cout << "Enter Start ID: "; cin >> u;
-                cout << "Enter End ID: "; cin >> v;
-                cout << "Enter Weight: "; cin >> w;
-                campus.addPath(u, v, w);
-                cout << "Path added." << endl;
-                break;
+                int u, v, w; cout << "起点ID 终点ID 距离: "; cin >> u >> v >> w;
+                campus.addPath(u, v, w); break;
             }
             case 3: {
-                int startId, endId;
-                cout << "Enter Start Location ID: ";
-                cin >> startId;
-                cout << "Enter End Location ID: ";
-                cin >> endId;
-                campus.printShortestPath(startId, endId);
-                // Update lastPath
-                lastPath = campus.getShortestPath(startId, endId);
-                break;
+                int s, e; cout << "起点 终点: "; cin >> s >> e;
+                campus.printShortestPath(s, e); break;
             }
             case 4: {
-                int sortChoice;
-                cout << "1. Sort by Popularity (Descending)" << endl;
-                cout << "2. Sort by ID (Ascending)" << endl;
-                cout << "Choice: ";
-                cin >> sortChoice;
-                if (sortChoice == 1) campus.printSortedByPopularity();
-                else if (sortChoice == 2) campus.printSortedById();
-                else cout << "Invalid choice." << endl;
+                int t; cout << "1.热度 2.ID: "; cin >> t;
+                if(t==1) campus.printSortedByPopularity(); else campus.printSortedById();
                 break;
             }
-            case 5: {
-                string keyword;
-                cout << "Enter keyword (prefix): ";
-                cin >> keyword;
-                campus.searchSpot(keyword);
-                break;
-            }
-            case 6: {
-                string filename;
-                cout << "Enter filename: ";
-                cin >> filename;
-                campus.loadMapFromFile(filename);
-                lastPath.clear();
-                break;
-            }
-            case 7: {
-                if (lastPath.empty()) {
-                    cout << "No path available to export. Please run query (Option 3) first." << endl;
-                } else {
-                    string filename;
-                    cout << "Enter filename to save path: ";
-                    cin >> filename;
-                    campus.exportPathToFile(filename, lastPath);
-                }
-                break;
-            }
-            case 0:
-                cout << "Exiting..." << endl;
-                break;
-            default:
-                cout << "Invalid choice. Please try again." << endl;
+            case 5: { string k; cout << "关键字: "; cin >> k; campus.searchSpot(k); break; }
+            case 6: { string f; cout << "文件名: "; cin >> f; campus.loadMapFromFile(f); break; }
+            // 7.导出功能略 (Python端已实现结果展示)
         }
-
     } while (choice != 0);
-
     return 0;
 }

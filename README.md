@@ -1,24 +1,24 @@
-# Data Structure Final Project
+# 数据结构大作业
 
-## Project Structure
+## 项目结构
 
-This project is divided into three main topics, each corresponding to a specific data structure assignment.
+该项目分为三个主要主题，每个主题对应一个特定的数据结构作业。
 
-### Topic 1: Student Grade System (Linear List & Sort)
-- **Directory**: `Topic1_Student/`
-- **Description**: Implementation of a student grade management system using linear lists and sorting algorithms.
+### 主题1：学生成绩系统（线性表和排序）
+- **目录**: `Topic1_Student/`
+- **描述**: 使用线性表和排序算法实现的学生成绩管理系统。
 
-### Topic 2: Dictionary System (BST/AVL Tree)
-- **Directory**: `Topic2_Dictionary/`
-- **Description**: A dictionary application implemented using Binary Search Trees (BST) or AVL Trees.
+### 主题2：字典系统（BST/AVL树）
+- **目录**: `Topic2_Dictionary/`
+- **描述**: 使用二叉搜索树（BST）或AVL树实现的字典应用程序。
 
-### Topic 3: Campus Navigation (Graph & Dijkstra)
-- **Directory**: `Topic3_Campus/`
-- **Description**: A campus navigation system using Graph data structures and Dijkstra's algorithm for shortest path finding.
+### 主题3：校园导航（图和Dijkstra）
+- **目录**: `Topic3_Campus/`
+- **描述**: 使用图数据结构和Dijkstra算法实现校园导航系统，用于寻找最短路径。
 
-## Building the Project
+## 构建项目
 
-Use CMake to build the project:
+使用CMake构建项目：
 
 ```bash
 mkdir build

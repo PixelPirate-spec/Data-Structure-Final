@@ -4,11 +4,11 @@ project(DataStructureFinal)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Topic 1: Student Grade System
+# 主题1：学生成绩系统
 add_executable(Topic1_Student Topic1_Student/main.cpp)
 
-# Topic 2: Dictionary System
+# 主题2：字典系统
 add_executable(Topic2_Dictionary Topic2_Dictionary/main.cpp)
 
-# Topic 3: Campus Navigation
+# 主题3：校园导航
 add_executable(Topic3_Campus Topic3_Campus/main.cpp)
